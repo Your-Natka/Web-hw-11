@@ -9,10 +9,6 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Contacts API", version="1.0")
 
-@app.get("/")
-def read_root():
-    return {"message": "Hello, world!"}
-
 @app.post("/contacts/", response_model=schemas.ContactOut, status_code=201)
 def create_contact(contact_in: schemas.ContactCreate, db: Session = Depends(get_db)):
     existing = db.query(models.Contact).filter(models.Contact.email == contact_in.email).first()
