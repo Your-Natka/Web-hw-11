@@ -1,50 +1,54 @@
-from datetime import date
 from pydantic import BaseModel, EmailStr
 from typing import Optional
-
+from datetime import date
 
 # --- ITEMS ---
 class ItemBase(BaseModel):
     title: str
     description: Optional[str] = None
 
-
 class ItemCreate(ItemBase):
     pass
 
-
-class Item(ItemBase):
+class ItemOut(ItemBase):
     id: int
 
     class Config:
-        from_attributes = True
-
+        orm_mode = True
 
 # --- CONTACTS ---
 class ContactBase(BaseModel):
-    name: str
+    first_name: str
+    last_name: str
     email: EmailStr
     phone: Optional[str] = None
-    preferred_contact_method: Optional[str] = None  # email / sms
+    preferred_contact_method: Optional[str] = "email"
     sent: Optional[bool] = False
-    birth_date: Optional[date] = None
-
+    birthday: Optional[date] = None
+    additional_info: Optional[str] = None
 
 class ContactCreate(ContactBase):
-    pass
-
+    first_name: str
+    last_name: str
+    email: EmailStr
+    phone: str
+    preferred_contact_method: Optional[str] = "email"
+    birthday: Optional[date] = None
+    additional_info: Optional[str] = None
 
 class ContactUpdate(BaseModel):
-    name: Optional[str] = None
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
     email: Optional[EmailStr] = None
     phone: Optional[str] = None
     preferred_contact_method: Optional[str] = None
     sent: Optional[bool] = None
-    birth_date: Optional[date] = None
-
+    birthday: Optional[date] = None
+    additional_info: Optional[str] = None
 
 class ContactOut(ContactBase):
     id: int
 
-    class Config:
-        from_attributes = True
+    model_config = {
+        "from_attributes": True
+    }

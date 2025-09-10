@@ -1,23 +1,25 @@
 from sqlalchemy import Column, Integer, String, Boolean, Date
-from .database import Base
+from app.database import Base  # Base з database.py
 
-
+# Таблиця для зберігання товарів
 class Item(Base):
     __tablename__ = "items"
 
     id = Column(Integer, primary_key=True, index=True)
-    title = Column(String, index=True)
-    description = Column(String, index=True)
+    title = Column(String(255), nullable=False, index=True)
+    description = Column(String(500), nullable=True, index=True)
 
 
+# Таблиця для зберігання контактів
 class Contact(Base):
     __tablename__ = "contacts"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, index=True)
-    email = Column(String, unique=True, index=True)
-    phone = Column(String, index=True)
-    preferred_contact_method = Column(String, index=True)  # email / sms
+    first_name = Column(String(50), nullable=False, index=True)
+    last_name = Column(String(50), nullable=False, index=True)
+    email = Column(String(255), unique=True, nullable=False, index=True)
+    phone = Column(String(20), unique=True, nullable=True, index=True)
+    preferred_contact_method = Column(String(10), default="email", index=True)
     sent = Column(Boolean, default=False)
-    birth_date = Column(Date)  # для пошуку днів народження
-
+    birthday = Column(Date, nullable=True)
+    additional_info = Column(String(500), nullable=True)

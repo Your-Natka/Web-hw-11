@@ -65,8 +65,8 @@ def contacts_with_birthdays_next_days(db: Session, days: int = 7):
     result = []
 
     for contact in contacts:
-        if contact.birth_date:
-            birthday_this_year = contact.birth_date.replace(year=today.year)
+        if contact.birthday:
+            birthday_this_year = contact.birthday.replace(year=today.year)
             if today <= birthday_this_year <= end_date:
                 result.append(contact)
 
