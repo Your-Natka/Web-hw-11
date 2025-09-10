@@ -1,6 +1,8 @@
 from datetime import date, timedelta
 from sqlalchemy.orm import Session
-from . import models, schemas
+from sqlalchemy.exc import IntegrityError
+from fastapi import HTTPException
+from app import models, schemas
 
 
 # --- ITEMS ---
@@ -24,7 +26,11 @@ def get_items(db: Session, skip: int = 0, limit: int = 10):
 def create_contact(db: Session, contact: schemas.ContactCreate):
     db_contact = models.Contact(**contact.dict())
     db.add(db_contact)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=400, detail="Phone or email already exists")
     db.refresh(db_contact)
     return db_contact
 
@@ -37,13 +43,35 @@ def get_contact(db: Session, contact_id: int):
     return db.query(models.Contact).filter(models.Contact.id == contact_id).first()
 
 
-def update_contact(db: Session, contact_id: int, contact_in: schemas.ContactUpdate):
+# --- UPDATE CONTACT ---
+def update_contact_full(db: Session, contact_id: int, contact_in: schemas.ContactCreate):
+    """PUT — повне оновлення (усі поля обов’язкові)"""
+    db_contact = get_contact(db, contact_id)
+    if not db_contact:
+        return None
+    for key, value in contact_in.dict().items():
+        setattr(db_contact, key, value)
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=400, detail="Phone or email already exists")
+    db.refresh(db_contact)
+    return db_contact
+
+
+def update_contact_partial(db: Session, contact_id: int, contact_in: schemas.ContactUpdate):
+    """PATCH — часткове оновлення (тільки передані поля)"""
     db_contact = get_contact(db, contact_id)
     if not db_contact:
         return None
     for key, value in contact_in.dict(exclude_unset=True).items():
         setattr(db_contact, key, value)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=400, detail="Phone or email already exists")
     db.refresh(db_contact)
     return db_contact
 
@@ -71,3 +99,4 @@ def contacts_with_birthdays_next_days(db: Session, days: int = 7):
                 result.append(contact)
 
     return result
+

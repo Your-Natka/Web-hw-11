@@ -13,8 +13,10 @@ class ItemCreate(ItemBase):
 class ItemOut(ItemBase):
     id: int
 
-    class Config:
-        orm_mode = True
+    model_config = {
+        "from_attributes": True
+    }
+
 
 # --- CONTACTS ---
 class ContactBase(BaseModel):
@@ -27,14 +29,10 @@ class ContactBase(BaseModel):
     birthday: Optional[date] = None
     additional_info: Optional[str] = None
 
+
 class ContactCreate(ContactBase):
-    first_name: str
-    last_name: str
-    email: EmailStr
-    phone: str
-    preferred_contact_method: Optional[str] = "email"
-    birthday: Optional[date] = None
-    additional_info: Optional[str] = None
+    pass  # все вже є в ContactBase
+
 
 class ContactUpdate(BaseModel):
     first_name: Optional[str] = None
@@ -45,6 +43,7 @@ class ContactUpdate(BaseModel):
     sent: Optional[bool] = None
     birthday: Optional[date] = None
     additional_info: Optional[str] = None
+
 
 class ContactOut(ContactBase):
     id: int
